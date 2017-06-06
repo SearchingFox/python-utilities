@@ -1,3 +1,4 @@
+#Download all posts from livejournal
 import requests as rq
 from bs4 import BeautifulSoup
 import re
