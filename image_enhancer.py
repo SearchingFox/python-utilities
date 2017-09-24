@@ -14,10 +14,23 @@ def download(*urls):
         new_img_html = requests.get(i)
         soup_new = BeautifulSoup(new_img_html, 'html.parser')
 
+
+def yandere(url):
+    soup = BeautifulSoup(rq.get(url).content, 'html.parser')
+    pic = soup.find('a', {'class': "highres-show"})['href'].split('.')
+
+    with open('C:\\Users\\Ant\\Desktop\\' + pic[-2][3:].replace('%20', '_') + '.' + pic[-1], 'wb') as f:
+        f.write(rq.get(pic).content)
+
 # def get_google():
 # def get_tineye():
 # def get_zerochan():
-# def get_danbooru():
+def get_danbooru(url):
+    soup = BeautifulSoup(rq.get(url).content, 'html.parser')
+    pic = soup.find('a', {'class': "highres-show"})['href'].split('.')
+
+    with open('C:\\Users\\Ant\\Desktop\\' + pic[-2][3:].replace('%20', '_') + '.' + pic[-1], 'wb') as f:
+        f.write(rq.get(pic).content)
 
 
 source_folder = 'C:\\Users\\Ant\\Desktop\\test\\'
@@ -40,6 +53,5 @@ for image_file in os.listdir(source_folder):
     data = data[3:] # delete info about old picture
     print(links)
 
-    html_f = 'C:\\Users\\Ant\\Desktop\\test\\'
-    with open(html_f + image_file + '.html', 'wb') as html_doc_new:
+    with open(source_folder + image_file + '.html', 'wb') as html_doc_new:
         html_doc_new.write(soup.prettify().encode('utf-8'))
