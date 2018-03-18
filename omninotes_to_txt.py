@@ -4,32 +4,34 @@ import sqlite3
 
 
 non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
-in_folder   = "C:\\Users\\Ant\\Desktop\\"
-out_folder  = "C:\\Users\\Ant\\Desktop\\notes1\\"
+in_folder = 'C:\\Users\\Ant\\Desktop\\2017.08.24-17.34\\'
+out_folder = 'C:\\Users\\Ant\\Desktop\\notes1\\'
 if not os.path.exists(out_folder):
     os.mkdir(out_folder)
 
-connection = sqlite3.connect(in_folder + "omni-notes")
-cursor = connection.cursor()
-notes = cursor.execute("SELECT title, content FROM notes WHERE trashed <> 1;")
+connection = sqlite3.connect(in_folder + 'omni-notes')
+cursor = connection.cursor() 
+notes = cursor.execute('SELECT title, content FROM notes WHERE trashed <> 1;')
 
-i, j = 0, 0
-for header, content in notes:
+c = 0
+for note in notes:
     try:
-        if not header:
-            header = "New_Note_" + str(i)
-            i += 1
+        header = note[0]
+        content = note[1]
 
-        note_path = out_folder + header.translate(str.maketrans("<>:\"/\|?*\r\n", "___________")) + ".txt"
+        if header == '':
+            header = 'New_Note_' + str(c)
+            c += 1
 
-        if os.path.exists(note_path):
-            print("Note \"" + header + "\" already exists")
-            note_path = note_path[:-4] + '_' + str(j) + ".txt"
-            j += 1
+        notepath = out_folder + header.translate(str.maketrans('', '', '<>:"/\|?*\r\n')) + '.txt'
 
-        with open(note_path, 'a', encoding='utf-8') as note_file:
-            note_file.write(content)
+        if os.path.exists(notepath):
+            print('Note "' + header + '" already exists')
+            content = '\n\n' + '-'*22 + '\n\n' + content
+
+        with open(notepath, 'ab') as note_file:
+            note_file.write(content.encode())
     except Exception as e:
-        print("Error:", e)
+        print('Error:', e)
 
 connection.close()
