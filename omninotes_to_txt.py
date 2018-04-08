@@ -19,16 +19,16 @@ cursor = connection.cursor()
 notes = cursor.execute("SELECT title, content FROM notes WHERE trashed <> 1;")
 
 i, j = 1, 1
-for header, content in notes:
+for title, content in notes:
     try:
-        if not header:
-            header = "New_Note_" + str(i)
+        if not title:
+            title = "New_Note_" + str(i)
             i += 1
 
-        note_path = out_folder + header.translate(str.maketrans("<>:\"/\|?*\r\n", "_"*11)) + ".txt"
+        note_path = os.path.join(out_folder, title.translate(str.maketrans("<>:\"/\|?*\r\n", "_"*11)) + ".txt")
 
         if os.path.exists(note_path):
-            print("Note \"" + header + "\" already exists.")
+            print("Note \"" + title + "\" already exists.")
             note_path = note_path[:-4] + '_' + str(j) + ".txt"
             j += 1
 
