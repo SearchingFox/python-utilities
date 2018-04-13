@@ -1,45 +1,48 @@
 import os
 import sys
 
+# TODO: add stripe special symbols from names
+
 # stripe images from firefox bookmarks export file
 def stripe_images(old_file_path):
     with open(old_file_path, 'r', encoding='UTF-8') as old_file:
         with open(old_file_path[:-5] + "_noimgs.html", 'w', encoding='UTF-8') as new_file:
-            html = ""
-            for i in old_file.readlines():
-                html += i[:i.find("ICON_URI")-1] + i[i.find('">')+1:] + '\n'
-            new_file.write(html)
+            new_html = ""
+            for line in old_file:
+                new_html += line[:line.find("ICON_URI")-1] + line[line.find('">')+1:]+'\n'
+            new_file.write(new_html)
 
 
 # find duplicate bookmarks in firefox export file
 def find_duplicates(file_path):
     links = {}
-    dupls = []
+    dupls = set()
     count = 0
 
     with open(file_path, 'r', encoding='utf-8') as bookmarks_file:
-        for line in bookmarks_file.readlines():
+        for line in bookmarks_file:
             if "<H3" in line:
                 folder = line[line.find("\">")+2:line.find("</")]
             elif '<A' in line:
                 count += 1
-                addr = '/'.join(line[line.find('"')+1:line.find('" A')].split('/')[2:]) if line.startswith("http") else line[line.find('"')+1:line.find('" A')]
+                url = line[line.find('"')+1:line.find('" A')]
+                link = url.split('/', 2)[2] if url.startswith("http") else url
 
-                if addr not in links:
-                    links[addr] = []
-                elif addr not in dupls:
-                    dupls.append(addr)
+                if link not in links:
+                    links[link] = []
+                else:
+                    dupls.add(link)
 
-                links[addr].append(folder)
+                links[link].append(folder)
 
     print("all links:", count)
     print("duplicates:", len(dupls))
-    # for i in sorted(dupls):
-    #     print(i, links[i])
-    
-    with open("dupls.txt", 'w') as dupls_file:
-        dupls_file.write('\n'.join(sorted(dupls)))
 
+    output = ""
+    for i in sorted(dupls):
+        output += i + "    " + ' '.join(links[i]) + '\n'
+    with open("dupls.txt", 'w', encoding='utf-8') as dupls_file:
+        dupls_file.write(output)
 
 if len(sys.argv) > 1:
     file = os.path.join(os.getcwd(), sys.argv[2])
