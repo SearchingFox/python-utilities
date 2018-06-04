@@ -2,6 +2,7 @@ import os
 import sys
 
 # TODO: add stripe special symbols from names
+# TODO: stripe google bullshit from urls
 
 def save_links_only(file_path):
     with open(file_path, 'r', encoding="utf-8") as bookmarks_file:
