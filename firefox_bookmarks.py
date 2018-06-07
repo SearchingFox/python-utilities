@@ -1,8 +1,11 @@
 import os
 import sys
+import datetime as dt
 
 # TODO: add stripe special symbols from names
-# TODO: stripe google bullshit from urls
+# TODO: add stripe google bullshit from urls
+# TODO: add more reliable arguments parsing
+# TODO: add changing http to https if possible
 
 def save_links_only(file_path):
     with open(file_path, 'r', encoding="utf-8") as bookmarks_file:
@@ -14,7 +17,7 @@ def save_links_only(file_path):
             links_file.write(s)
 
 
-# stripe images from firefox bookmarks export file
+# stripe favicon images from firefox bookmarks export file
 def stripe_images(old_file_path):
     with open(old_file_path, 'r', encoding='UTF-8') as old_file:
         with open(old_file_path[:-5] + "_noimgs.html", 'w', encoding='UTF-8') as new_file:
@@ -24,11 +27,27 @@ def stripe_images(old_file_path):
             new_file.write(new_html)
 
 
+def find_by_date(file_path, lower_bound, upper_bound):
+    lower_bound_ts = int(dt.datetime.strptime(lower_bound, "%d.%m.%y").timestamp())
+    upper_bound_ts = int(dt.datetime.strptime(upper_bound, "%d.%m.%y").timestamp())
+    results = {}
+
+    with open(file_path, 'r', encoding='utf-8') as bookmarks_file:
+        for line in bookmarks_file:
+            if '<A' in line:
+                add_date = int(line[line.find('" A')+12:line.find('" L')])
+                if lower_bound_ts <= add_date <= upper_bound_ts:
+                    results[add_date] = line[line.find('"')+1:line.find('" A')]
+
+    for i in sorted(results):
+        print(dt.datetime.fromtimestamp(i).strftime("%d.%m.%y %H:%M"), results[i])
+
+
 # find duplicate bookmarks in firefox export file
 def find_duplicates(file_path):
+    count = 0
     links = {}
     dupls = set()
-    count = 0
 
     with open(file_path, 'r', encoding='utf-8') as bookmarks_file:
         for line in bookmarks_file:
@@ -55,6 +74,7 @@ def find_duplicates(file_path):
     with open("dupls.txt", 'w', encoding='utf-8') as dupls_file:
         dupls_file.write(output)
 
+
 if len(sys.argv) > 1:
     file = os.path.join(os.getcwd(), sys.argv[2])
 else:
@@ -65,9 +85,11 @@ else:
         print("Error: Specify file.")
         exit(1)
 
-if sys.argv[1] == "-s":
+if   sys.argv[1] == "-s":
     stripe_images(file)
 elif sys.argv[1] == "-d":
     find_duplicates(file)
 elif sys.argv[1] == "-l":
     save_links_only(file)
+elif sys.argv[1] == "-f":
+    find_by_date(file, sys.argv[3], sys.argv[4])
