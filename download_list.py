@@ -12,7 +12,7 @@ def download_link(link, folder, ext=""):
             return
             # file_name = os.path.join(DESKTOP, folder, "".join(random.choices(string.ascii_letters + string.digits, k=9)) + ext)
 
-        with open(file_name, "wb") as file:
+        with open(file_name.replace('\n', ''), "wb") as file:
             file.write(rq.get(link).content)
 
         print("Saved", file_name)
@@ -40,3 +40,6 @@ def gen_nums(init_str, start, end, leadz=False):
             links.append(init_str.format(str(i)))
 
     return links
+
+with open("C:\\Users\\Ant\\Desktop\\links.txt", 'r') as input_file:
+    download_list(input_file.readlines(), "test")

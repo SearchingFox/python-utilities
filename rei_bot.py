@@ -2,7 +2,7 @@
 import telebot
 import requests
 
-token = "235398494:AAFEZ2elV6pZDXwV3KX0auMQkthOa3G2c9M"
+token = ""
 bot = telebot.TeleBot(token)
 
 REI = "http://static.zerochan.net/Ayanami.Rei.full.266985.jpg"
