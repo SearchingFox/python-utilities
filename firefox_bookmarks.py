@@ -6,6 +6,7 @@ import datetime as dt
 # TODO: add stripe google bullshit from urls
 # TODO: add more reliable arguments parsing
 # TODO: add changing http to https if possible
+# TODO: delete "m." and "?m=1"
 
 def save_links_only(file_path):
     with open(file_path, 'r', encoding="utf-8") as bookmarks_file:
@@ -66,16 +67,19 @@ def find_duplicates(file_path):
                 links[link].append(folder)
 
     print("all links:", count)
-    print("duplicates:", len(dupls))
 
-    output = ""
-    for i in sorted(dupls):
-        output += i + "    " + ' '.join(links[i]) + '\n'
-    with open("dupls.txt", 'w', encoding='utf-8') as dupls_file:
-        dupls_file.write(output)
+    if dupls:
+        print("duplicates:", len(dupls))
+        output = ""
+        for i in sorted(dupls):
+            output += i + "    " + ' '.join(links[i]) + '\n'
+        with open("dupls.txt", 'w', encoding='utf-8') as dupls_file:
+            dupls_file.write(output)
+    else:
+        print("No duplicates! Yay!")
 
 
-if len(sys.argv) > 1:
+if len(sys.argv) > 2:
     file = os.path.join(os.getcwd(), sys.argv[2])
 else:
     htmls = [i for i in os.listdir() if i.endswith(".html") and i.startswith("bookmarks_firefox")]

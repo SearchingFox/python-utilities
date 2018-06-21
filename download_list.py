@@ -41,5 +41,5 @@ def gen_nums(init_str, start, end, leadz=False):
 
     return links
 
-with open("C:\\Users\\Ant\\Desktop\\links.txt", 'r') as input_file:
+with open(DESKTOP + "links.txt", 'r') as input_file:
     download_list(input_file.readlines(), "test")
