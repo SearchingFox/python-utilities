@@ -8,6 +8,40 @@ import datetime as dt
 # TODO: add changing http to https if possible
 # TODO: delete "m." and "?m=1"
 
+def find_similar_urls(file_path):
+    def levenshtein_distance(a, b):
+    n, m = len(a), len(b)
+    if n > m:
+        a, b = b, a
+        n, m = m, n
+
+    cur_row = range(n+1)
+    for i in range(1, m+1):
+        prev_row, cur_row = cur_row, [i]+[0]*n
+        for j in range(1, n+1):
+            add, delete, change = prev_row[j]+1, cur_row[j-1]+1, prev_row[j-1]
+            if a[j-1] != b[i-1]:
+                change += 1
+            cur_row[j] = min(add, delete, change)
+
+    return cur_row[n]
+
+    with open(file_path, 'r', encoding="utf-8") as bookmarks_file:
+        all_links = []
+        for line in bookmarks_file:
+            if '<A' in line:
+                all_links.append(line[line.find('"')+1:line.find('" A')] + '\n')
+
+    sim_urls = []
+    for i in all_links:
+        for j in all_links:
+            if i != j and levenshtein_distance(i, j) <= 6 and (j, i) not in sim_urls:
+                sim_urls.append((i, j))
+
+    for i in sim_urls:
+        print(i)
+
+
 def save_links_only(file_path):
     with open(file_path, 'r', encoding="utf-8") as bookmarks_file:
         s = ""
