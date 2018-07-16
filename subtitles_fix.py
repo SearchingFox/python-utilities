@@ -7,9 +7,10 @@ with open("C:\\Users\\Ant\\Documents\\Python\\count_1w.txt", 'r') as words_file:
     lim = 1
     common_words = []
     for i in words_file:
-        if lim <= LIMIT_COMMON_WORDS:
-            lim += 1
-            common_words.append(i.split()[0])
+        if lim > LIMIT_COMMON_WORDS:
+            break
+        lim += 1
+        common_words.append(i.split()[0])
 
 
 def del_com_words(old_line):
