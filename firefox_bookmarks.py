@@ -8,6 +8,30 @@ import datetime as dt
 # TODO: add changing http to https if possible
 # TODO: delete "m." and "?m=1"
 
+def txt_to_html_file(file_path):
+    import time
+
+    timestamp = int(time.time())
+    title = """<!DOCTYPE NETSCAPE-Bookmark-file-1>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<TITLE>Bookmarks</TITLE>
+<H1>Bookmarks Menu</H1>
+
+<DL><p>
+    <DT><H3 ADD_DATE="{}" LAST_MODIFIED="{}">temp_bookmarks</H3>
+    <DL><p>\n""".format(timestamp, timestamp)
+
+    end = """\n    </DL><p>
+</DL>"""
+
+    with open(file_path, 'r', encoding="utf-8") as file:
+        bookmarks = []
+        for line in file:
+            if line != '\n':
+                bookmarks.append("""        <DT><A HREF="{url}" ADD_DATE="{}" LAST_MODIFIED="{}" ICON_URI="" ICON="">{url}</A>""".format(timestamp, timestamp, url=line[:-1]))
+    with open(os.path.join(os.path.dirname(file_path), "temp_bookmarks.html"), 'w', encoding='utf-8') as new_file:
+        new_file.write(title + '\n'.join(bookmarks) + end)
+
 
 def save_links_only(file_path):
     with open(file_path, 'r', encoding="utf-8") as bookmarks_file:
