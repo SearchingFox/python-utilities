@@ -6,8 +6,8 @@ import sqlite3
 non_bmp_map = dict.fromkeys(range(0x10000, sys.maxunicode + 1), 0xfffd)
 
 if sys.platform.startswith("win32"):
-    inp_file   = os.path.expanduser('~') + "Desktop\\omni-notes"
-    out_folder = os.path.expanduser('~') + "Desktop\\notes1\\"
+    inp_file   = os.path.join(os.path.expanduser('~'), "Desktop", "omni-notes")
+    out_folder = os.path.join(os.path.expanduser('~'), "Desktop", "notes1")
 elif sys.platform.startswith("linux"):
     inp_file   = "/storage/emulated/0/documents/omni-notes"
     out_folder = "/storage/emulated/0/documents/notes1/"
@@ -15,8 +15,7 @@ if not os.path.exists(out_folder):
     os.mkdir(out_folder)
 
 connection = sqlite3.connect(inp_file)
-cursor = connection.cursor()
-notes = cursor.execute("SELECT title, content FROM notes WHERE trashed <> 1;")
+notes = connection.cursor().execute("SELECT title, content FROM notes WHERE trashed <> 1;")
 
 i, j = 1, 1
 for title, content in notes:
