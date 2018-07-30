@@ -15,21 +15,30 @@ if not os.path.exists(out_folder):
     os.mkdir(out_folder)
 
 connection = sqlite3.connect(inp_file)
-notes = connection.cursor().execute("SELECT title, content FROM notes WHERE trashed <> 1;")
+notes = connection.cursor().execute("SELECT title, content, category_id FROM notes WHERE trashed <> 1;")
 
-i, j = 1, 1
-for title, content in notes:
+new_notes_num, existed_notes_num = 1, 1
+for title, content, category_id in notes:
     try:
         if not title:
-            title = "New_Note_" + str(i)
-            i += 1
+            title = "New_Note_" + str(new_notes_num)
+            new_notes_num += 1
 
-        note_path = os.path.join(out_folder, title.translate(str.maketrans("<>:\"/\|?*\r\n", "_"*11)) + ".txt")
+        if category_id:
+            c = connection.cursor()
+            c.execute("SELECT name FROM categories WHERE category_id = ?", (category_id,))
+            out_path = os.path.join(out_folder, c.fetchone()[0])
+            if not os.path.exists(out_path):
+                os.mkdir(out_path)
+        else:
+            out_path = out_folder
 
-        if os.path.exists(note_path):
+        note_path = os.path.join(out_path, title.translate(str.maketrans("<>:\"/\|?*\r\n", "_"*11)) + ".txt")
+
+        while os.path.exists(note_path):
             print("Note \"" + title + "\" already exists.")
-            note_path = note_path[:-4] + '_' + str(j) + ".txt"
-            j += 1
+            note_path = note_path[:-4] + '_' + str(existed_notes_num) + ".txt"
+            existed_notes_num += 1
 
         with open(note_path, 'a', encoding='utf-8') as note_file:
             note_file.write(content)
