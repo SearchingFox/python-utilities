@@ -1,5 +1,6 @@
 import os
 import sys
+import argparse as ap
 import datetime as dt
 
 # TODO: add stripe special symbols from names
@@ -20,11 +21,10 @@ def txt_to_html_file(file_path):
 <DL><p>
     <DT><H3 ADD_DATE="{}" LAST_MODIFIED="{}">temp_bookmarks</H3>
     <DL><p>\n""".format(timestamp, timestamp)
-
     end = """\n    </DL><p>
 </DL>"""
 
-    with open(file_path, 'r', encoding="utf-8") as file:
+    with open(file_path, 'r', encoding='utf-8') as file:
         bookmarks = []
         for line in file:
             if line != '\n':
@@ -34,23 +34,23 @@ def txt_to_html_file(file_path):
 
 
 def save_links_only(file_path):
-    with open(file_path, 'r', encoding="utf-8") as bookmarks_file:
-        with open(os.path.join(os.path.dirname(file_path), "links.txt"), 'w', encoding="utf-8") as links_file:
+    with open(file_path, 'r', encoding='utf-8') as bookmarks_file:
+        with open(os.path.join(os.path.dirname(file_path), "links.txt"), 'w', encoding='utf-8') as links_file:
             links = [line[line.find('"')+1:line.find('" A')] for line in bookmarks_file if '<A' in line]
             links_file.write('\n'.join(links))
 
 
 # stripe favicon images from firefox bookmarks export file
 def stripe_images(old_file_path):
-    with open(old_file_path, 'r', encoding='UTF-8') as old_file:
-        with open(old_file_path[:-5] + "_noimgs.html", 'w', encoding='UTF-8') as new_file:
+    with open(old_file_path, 'r', encoding='utf-8') as old_file:
+        with open(old_file_path[:-5] + "_noimgs.html", 'w', encoding='utf-8') as new_file:
             new_html = [line[:line.find("ICON_URI")-1] + line[line.find('">')+1:] for line in old_file]
             new_file.write('\n'.join(new_html))
 
 
 def find_by_date(file_path, lower_bound, upper_bound):
-    lower_bound_ts = int(dt.datetime.strptime(lower_bound, "%d.%m.%y").timestamp())
-    upper_bound_ts = int(dt.datetime.strptime(upper_bound, "%d.%m.%y").timestamp())
+    lower_bound_ts = int(dt.datetime.strptime(lower_bound, '%d.%m.%y').timestamp())
+    upper_bound_ts = int(dt.datetime.strptime(upper_bound, '%d.%m.%y').timestamp())
     results = {}
 
     with open(file_path, 'r', encoding='utf-8') as bookmarks_file:
@@ -61,7 +61,7 @@ def find_by_date(file_path, lower_bound, upper_bound):
                     results[add_date] = line[line.find('"')+1:line.find('" A')]
 
     for i in sorted(results):
-        print(dt.datetime.fromtimestamp(i).strftime("%d.%m.%y %H:%M"), results[i])
+        print(dt.datetime.fromtimestamp(i).strftime('%d.%m.%y %H:%M'), results[i])
 
 
 # find duplicate bookmarks in firefox export file
@@ -72,12 +72,12 @@ def find_duplicates(file_path):
 
     with open(file_path, 'r', encoding='utf-8') as bookmarks_file:
         for line in bookmarks_file:
-            if "<H3" in line:
-                folder = line[line.find("\">")+2:line.find("</")]
+            if '<H3' in line:
+                folder = line[line.find('">')+2:line.find('</')]
             elif '<A' in line:
                 count += 1
                 url  = line[line.find('"')+1:line.find('" A')]
-                link = url.split('/', 2)[2] if url.startswith("http") else url
+                link = url.split('/', 2)[2] if url.startswith('http') else url
 
                 if link not in links:
                     links[link] = []
@@ -96,11 +96,10 @@ def find_duplicates(file_path):
     else:
         print("No duplicates! Yay!")
 
-
 if len(sys.argv) > 2:
     file = os.path.join(os.getcwd(), sys.argv[2])
 else:
-    htmls = [i for i in os.listdir() if i.endswith(".html") and i.startswith("bookmarks_firefox")]
+    htmls = [i for i in os.listdir() if i.endswith('.html') and i.startswith('bookmarks_firefox')]
     if len(htmls) == 1:
         file = os.path.join(os.getcwd(), htmls[0])
     else:
