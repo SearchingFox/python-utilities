@@ -11,6 +11,8 @@ import datetime as dt
 
 def txt_to_html_file(file_path):
     import time
+    import requests as rq
+    from bs4 import BeautifulSoup
 
     timestamp = int(time.time())
     title = """<!DOCTYPE NETSCAPE-Bookmark-file-1>
@@ -28,7 +30,8 @@ def txt_to_html_file(file_path):
         bookmarks = []
         for line in file:
             if line != '\n':
-                bookmarks.append("""        <DT><A HREF="{url}" ADD_DATE="{}" LAST_MODIFIED="{}" ICON_URI="" ICON="">{url}</A>""".format(timestamp, timestamp, url=line[:-1]))
+                title = BeautifulSoup(rq.get(line).content).title.string
+                bookmarks.append("""        <DT><A HREF="{url}" ADD_DATE="{}" LAST_MODIFIED="{}" ICON_URI="" ICON="">{}</A>""".format(line[:-1], timestamp, timestamp, title))
     with open(os.path.join(os.path.dirname(file_path), "temp_bookmarks.html"), 'w', encoding='utf-8') as new_file:
         new_file.write(title + '\n'.join(bookmarks) + end)
 
