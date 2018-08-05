@@ -1,28 +1,29 @@
 import os
+import re
 import requests as rq
-DESKTOP = os.path.expanduser("~") + "\\Desktop\\"
+DESKTOP = os.path.join(os.path.expanduser('~'), "Desktop")
 
 
-def download_link(link, folder, ext=""):
+def download_link(link, folder, ext="", headers={}):
+    file_path = os.path.join(DESKTOP, folder, link.split('/')[-1] + ext)
     try:
-        file_name = os.path.join(DESKTOP, folder, link.split('/')[-1])
-        # lnk.headers['ETag'][1:-1] + ext
+        c = 1
         while os.path.exists(file_name):
             print("Exists", file_name)
-            return
-            # file_name = os.path.join(DESKTOP, folder, "".join(random.choices(string.ascii_letters + string.digits, k=9)) + ext)
+            file_name += str(c)
+            c += 1
 
-        with open(file_name.replace('\n', ''), "wb") as file:
-            file.write(rq.get(link).content)
+        with open(file_path.replace('\n', ''), 'wb') as file:
+            file.write(rq.get(link, headers=headers).content)
 
-        print("Saved", file_name)
+        print("Saved", file_path)
     except Exception as e:
-        print("Exception while saving:", e)
+        print("Exception while saving:", e, file_path)
 
 
 def download_list(links, folder, ext=""):
-    if not os.path.exists(DESKTOP + folder):
-        os.mkdir(DESKTOP + folder)
+    if not os.path.exists(os.path.join(DESKTOP, folder)):
+        os.mkdir(os.path.join(DESKTOP, folder))
 
     if type(links) is str:
         links = links.split('\n')
@@ -41,5 +42,5 @@ def gen_nums(init_str, start, end, leadz=False):
 
     return links
 
-with open(DESKTOP + "links.txt", 'r') as input_file:
-    download_list(input_file.readlines(), "test")
+with open(os.path.join(DESKTOP, "links.txt"), 'r') as input_file:
+    download_list(input_file.read().splitlines(), "test")
