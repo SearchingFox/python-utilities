@@ -11,7 +11,7 @@ with open(os.path.join(DESKTOP, sys.argv[1]), 'r', encoding='utf8') as inp:
     notes = BS(inp, 'html.parser').find_all('note')
 
     for n in notes:
-        title = n.title.text.translate(str.maketrans("<>:\"/\\|?*\r\n", '_'*11))
+        title = n.title.text.translate(str.maketrans("<>:\"/\\|?*\r\n", '_'*11)).replace('&apos', "'")
         note_path = os.path.join(out_folder, title + '.txt')
 
         existed_notes_num = 1
@@ -23,4 +23,4 @@ with open(os.path.join(DESKTOP, sys.argv[1]), 'r', encoding='utf8') as inp:
         print(note_path)
 
         with open(note_path, 'w', encoding='utf8') as out:
-            out.write(BS(n.content.text, 'html.parser').get_text(strip=True, separator="\n")).replace('&apos', "'")
+            out.write(BS(n.content.text, 'html.parser').get_text(strip=True, separator='\n').replace('&apos', "'"))
