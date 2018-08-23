@@ -8,9 +8,9 @@ def download_link(link, folder, ext="", headers={}):
     file_path = os.path.join(DESKTOP, folder, link.split('/')[-1] + ext)
     try:
         c = 1
-        while os.path.exists(file_name):
-            print("Exists", file_name)
-            file_name += str(c)
+        while os.path.exists(file_path):
+            print("Exists", file_path)
+            file_path += str(c)
             c += 1
 
         with open(file_path.replace('\n', ''), 'wb') as file:
