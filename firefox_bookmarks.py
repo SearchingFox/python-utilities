@@ -9,7 +9,7 @@ import datetime as dt
 # TODO: add changing http to https if possible
 # TODO: delete "m." and "?m=1"
 
-def txt_to_html_file(file_path):
+def org_to_html_file(bookmarks_file_path, file_path):
     import time
     # import requests as rq
     # from bs4 import BeautifulSoup
@@ -25,12 +25,7 @@ def txt_to_html_file(file_path):
     <DL><p>\n""".format(timestamp, timestamp)
     end = "\n    </DL><p>\n</DL>"
 
-    try:
-        with open(os.path.join(os.path.dirname(file_path), "firefox_links.txt"), 'r') as links_file:
-            links = links_file.read().splitlines()
-    except Exception as e:
-        print("No links export file.")
-        exit(1)
+    links = get_links_only(bookmarks_file_path)
 
     with open(file_path, 'r', encoding='utf-8') as file:
         new_links = file.read().split('\n\n')
@@ -44,19 +39,28 @@ def txt_to_html_file(file_path):
 
             if link not in links and link not in bookmarks_plain:
                 # title = BeautifulSoup(rq.get(link).content).title.string
-                bookmarks.append('        <DT><A HREF="{}" ADD_DATE="{}" LAST_MODIFIED="{}" ICON_URI="" ICON="">{}</A>'.format(link[:-1], timestamp, timestamp, title))
+                t = title.split(' ')[-1]
+                if t[0] == ':' and t[0] == t[-1]:
+                    tag = t[1:-1]
+                    title = title.rsplit(' ', 1)[0]
+                else:
+                    tag = ''
+
+                bookmark_string = '        <DT><A HREF="{}" ADD_DATE="{}" LAST_MODIFIED="{}" ICON_URI="" ICON="">{}</A>'
+                if tag:
+                    bookmark_string = bookmark_string[:-7] + ' TAGS="' + tag + '"' + '>{}</A>'
+
+                bookmarks.append(bookmark_string.format(link, timestamp, timestamp, title.split(' ', 1)[1]))
                 bookmarks_plain.append(link)
+
 
     with open(os.path.join(os.path.dirname(file_path), "temp_bookmarks.html"), 'w', encoding='utf-8') as new_file:
         new_file.write(header + '\n'.join(bookmarks) + end)
 
 
-def save_links_only(file_path):
+def get_links_only(file_path):
     with open(file_path, 'r', encoding='utf-8') as bookmarks_file:
-        with open(os.path.join(os.path.dirname(file_path), "firefox_links.txt"), 'w', encoding='utf-8') as links_file:
-            links = [line[line.find('"')+1:line.find('" A')] for line in bookmarks_file if '<A' in line]
-            links_file.write('\n'.join(links))
-            print("Saved firefox_links.txt")
+        return [line[line.find('"')+1:line.find('" A')] for line in bookmarks_file if '<A' in line]
 
 
 # stripe favicon images from firefox bookmarks export file
@@ -131,8 +135,10 @@ if   sys.argv[1] == "-s":
 elif sys.argv[1] == "-d":
     find_duplicates(file)
 elif sys.argv[1] == "-l":
-    save_links_only(file)
+    with open(os.path.join(os.path.dirname(file), "firefox_links.txt"), 'w', encoding='utf-8') as links_file:
+        links_file.write('\n'.join(get_links_only(file)))
+    print("Saved firefox_links.txt")
 elif sys.argv[1] == "-f":
     find_by_date(file, sys.argv[3], sys.argv[4])
 elif sys.argv[1] == "-c":
-    txt_to_html_file(sys.argv[2])
+    org_to_html_file(sys.argv[2], sys.argv[3])
