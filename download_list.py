@@ -43,4 +43,4 @@ def gen_nums(init_str, start, end, leadz=False):
     return links
 
 with open(os.path.join(DESKTOP, "links.txt"), 'r') as input_file:
-    download_list(input_file.read().splitlines(), "test")
+    download_list(input_file.read().splitlines(), '29102')

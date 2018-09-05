@@ -21,8 +21,8 @@ def org_to_html_file(bookmarks_file_path, file_path):
 <H1>Bookmarks Menu</H1>
 
 <DL><p>
-    <DT><H3 ADD_DATE="{}" LAST_MODIFIED="{}">temp_bookmarks</H3>
-    <DL><p>\n""".format(timestamp, timestamp)
+    <DT><H3 ADD_DATE="{}" LAST_MODIFIED="{}">smartphone_{}</H3>
+    <DL><p>\n""".format(timestamp, timestamp, timestamp)
     end = "\n    </DL><p>\n</DL>"
 
     links = get_links_only(bookmarks_file_path)
@@ -46,15 +46,15 @@ def org_to_html_file(bookmarks_file_path, file_path):
                 else:
                     tag = ''
 
-                bookmark_string = '        <DT><A HREF="{}" ADD_DATE="{}" LAST_MODIFIED="{}" ICON_URI="" ICON="">{}</A>'
+                bookmark_string = '        <DT><A HREF="{}" ADD_DATE="{}" LAST_MODIFIED="{}">{}</A>'
                 if tag:
                     bookmark_string = bookmark_string[:-7] + ' TAGS="' + tag + '"' + '>{}</A>'
 
                 bookmarks.append(bookmark_string.format(link, timestamp, timestamp, title.split(' ', 1)[1]))
                 bookmarks_plain.append(link)
 
-
-    with open(os.path.join(os.path.dirname(file_path), "temp_bookmarks.html"), 'w', encoding='utf-8') as new_file:
+    new_file_name = os.path.join(os.path.dirname(file_path), "smartphone_{}.html".format(timestamp))
+    with open(new_file_name, 'w', encoding='utf-8') as new_file:
         new_file.write(header + '\n'.join(bookmarks) + end)
 
 
