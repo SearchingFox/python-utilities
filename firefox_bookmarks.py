@@ -27,7 +27,7 @@ def org_to_html_file(bookmarks_file_path, file_path):
 
     links = get_links_only(bookmarks_file_path)
 
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(file_path, encoding='utf-8') as file:
         new_links = file.read().split('\n\n')
 
     bookmarks = []
@@ -54,19 +54,19 @@ def org_to_html_file(bookmarks_file_path, file_path):
                 bookmarks_plain.append(link)
 
     new_file_name = os.path.join(os.path.dirname(file_path), "smartphone_{}.html".format(timestamp))
-    with open(new_file_name, 'w', encoding='utf-8') as new_file:
+    with open(new_file_name, 'w', encoding='utf8') as new_file:
         new_file.write(header + '\n'.join(bookmarks) + end)
 
 
 def get_links_only(file_path):
-    with open(file_path, 'r', encoding='utf-8') as bookmarks_file:
+    with open(file_path, encoding='utf8') as bookmarks_file:
         return [line[line.find('"')+1:line.find('" A')] for line in bookmarks_file if '<A' in line]
 
 
 # stripe favicon images from firefox bookmarks export file
 def stripe_images(old_file_path):
-    with open(old_file_path, 'r', encoding='utf-8') as old_file:
-        with open(old_file_path[:-5] + "_noimgs.html", 'w', encoding='utf-8') as new_file:
+    with open(old_file_path, encoding='utf8') as old_file:
+        with open(old_file_path[:-5] + "_noimgs.html", 'w', encoding='utf8') as new_file:
             new_html = [line[:line.find("ICON_URI")-1] + line[line.find('">')+1:] for line in old_file]
             new_file.write('\n'.join(new_html))
 
@@ -76,7 +76,7 @@ def find_by_date(file_path, lower_bound, upper_bound):
     upper_bound_ts = int(dt.datetime.strptime(upper_bound, '%d.%m.%y').timestamp())
     results = {}
 
-    with open(file_path, 'r', encoding='utf-8') as bookmarks_file:
+    with open(file_path, encoding='utf8') as bookmarks_file:
         for line in bookmarks_file:
             if '<A' in line:
                 add_date = int(line[line.find('" A')+12:line.find('" L')])
@@ -93,7 +93,7 @@ def find_duplicates(file_path):
     links = {}
     dupls = set()
 
-    with open(file_path, 'r', encoding='utf-8') as bookmarks_file:
+    with open(file_path, encoding='utf8') as bookmarks_file:
         for line in bookmarks_file:
             if '<H3' in line:
                 folder = line[line.find('">')+2:line.find('</')]
