@@ -1,5 +1,5 @@
 # Python utilities
-Simple scripts to automate things. All scripts are written in python 3.6
+Simple scripts to automate things.
 
 Requirements:
 * [requests](http://docs.python-requests.org/en/master/)
