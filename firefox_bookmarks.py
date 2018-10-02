@@ -1,5 +1,6 @@
 import os
 import sys
+import os.path as pt
 import argparse as ap
 import datetime as dt
 
@@ -53,7 +54,7 @@ def org_to_html_file(bookmarks_file_path, file_path):
                 bookmarks.append(bookmark_string.format(link, timestamp, timestamp, title.split(' ', 1)[1]))
                 bookmarks_plain.append(link)
 
-    new_file_name = os.path.join(os.path.dirname(file_path), "smartphone_{}.html".format(timestamp))
+    new_file_name = pt.join(pt.dirname(file_path), "smartphone_{}.html".format(timestamp))
     with open(new_file_name, 'w', encoding='utf8') as new_file:
         new_file.write(header + '\n'.join(bookmarks) + end)
 
@@ -114,18 +115,18 @@ def find_duplicates(file_path):
     if dupls:
         print("duplicates:", len(dupls))
         output = [i + '\t' + ' '.join(links[i]) for i in sorted(dupls)]
-        with open(os.path.join(os.path.dirname(file_path), "dupls.txt"), 'w', encoding='utf-8') as dupls_file:
+        with open(pt.join(pt.dirname(file_path), "dupls.txt"), 'w', encoding='utf-8') as dupls_file:
             dupls_file.write('\n'.join(output))
     else:
         print("No duplicates! Yay!")
 
 
 if len(sys.argv) > 2:
-    file = os.path.join(os.getcwd(), sys.argv[2])
+    file = pt.join(os.getcwd(), sys.argv[2])
 else:
     htmls = [i for i in os.listdir() if i.endswith('.html') and i.startswith('bookmarks_firefox')]
     if len(htmls) == 1:
-        file = os.path.join(os.getcwd(), htmls[0])
+        file = pt.join(os.getcwd(), htmls[0])
     else:
         print("Error: Specify file.")
         exit(1)
@@ -135,7 +136,7 @@ if   sys.argv[1] == "-s":
 elif sys.argv[1] == "-d":
     find_duplicates(file)
 elif sys.argv[1] == "-l":
-    with open(os.path.join(os.path.dirname(file), "firefox_links.txt"), 'w', encoding='utf-8') as links_file:
+    with open(pt.join(pt.dirname(file), "firefox_links.txt"), 'w', encoding='utf-8') as links_file:
         links_file.write('\n'.join(get_links_only(file)))
     print("Saved firefox_links.txt")
 elif sys.argv[1] == "-f":
