@@ -11,52 +11,40 @@ import datetime as dt
 # TODO: delete "m." and "?m=1"
 
 def org_to_html_file(bookmarks_file_path, file_path):
-    import time
-    # import requests as rq
-    # from bs4 import BeautifulSoup
-
-    timestamp = int(time.time())
-    header = """<!DOCTYPE NETSCAPE-Bookmark-file-1>
+    creation_time = dt.datetime.now().strftime("%y%m%d_%H%M")
+    blob_head = """<!DOCTYPE NETSCAPE-Bookmark-file-1>
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
 <TITLE>Bookmarks</TITLE>
 <H1>Bookmarks Menu</H1>
 
 <DL><p>
-    <DT><H3 ADD_DATE="{}" LAST_MODIFIED="{}">smartphone_{}</H3>
-    <DL><p>\n""".format(timestamp, timestamp, timestamp)
-    end = "\n    </DL><p>\n</DL>"
-
-    links = get_links_only(bookmarks_file_path)
+    <DT><H3>smartphone_{}</H3>\n    <DL><p>\n""".format(creation_time)
+    blob_last = "\n    </DL><p>\n</DL>"
 
     with open(file_path, encoding='utf-8') as file:
         new_links = file.read().split('\n\n')
 
     bookmarks = []
-    bookmarks_plain = []
+    added_links = []
+    links = get_links_only(bookmarks_file_path)
     
     for line in new_links:
         if line:
             title, link = line.split('\n')
 
-            if link not in links and link not in bookmarks_plain:
-                # title = BeautifulSoup(rq.get(link).content).title.string
+            if link not in links and link not in added_links:
+                tags = ''
                 t = title.split(' ')[-1]
-                if t[0] == ':' and t[0] == t[-1]:
-                    tag = t[1:-1]
+                if t[0] == t[-1] == ':':
+                    tags = ' TAGS="{}"'.format(t[1:-1])
                     title = title.rsplit(' ', 1)[0]
-                else:
-                    tag = ''
 
-                bookmark_string = '        <DT><A HREF="{}" ADD_DATE="{}" LAST_MODIFIED="{}">{}</A>'
-                if tag:
-                    bookmark_string = bookmark_string[:-7] + ' TAGS="' + tag + '"' + '>{}</A>'
+                bookmarks.append('        <DT><A HREF="{}"{}>{}</A>'.format(link, tags, title[2:]))
+                added_links.append(link)
 
-                bookmarks.append(bookmark_string.format(link, timestamp, timestamp, title.split(' ', 1)[1]))
-                bookmarks_plain.append(link)
-
-    new_file_name = pt.join(pt.dirname(file_path), "smartphone_{}.html".format(timestamp))
+    new_file_name = pt.join(pt.dirname(file_path), "smartphone_{}.html".format(creation_time))
     with open(new_file_name, 'w', encoding='utf8') as new_file:
-        new_file.write(header + '\n'.join(bookmarks) + end)
+        new_file.write(blob_head + '\n'.join(bookmarks) + blob_last)
 
 
 def get_links_only(file_path):
@@ -64,10 +52,9 @@ def get_links_only(file_path):
         return [line[line.find('"')+1:line.find('" A')] for line in bookmarks_file if '<A' in line]
 
 
-# stripe favicon images from firefox bookmarks export file
-def stripe_images(old_file_path):
+def stripe_favicon_images(old_file_path):
     with open(old_file_path, encoding='utf8') as old_file:
-        with open(old_file_path[:-5] + "_noimgs.html", 'w', encoding='utf8') as new_file:
+        with open(old_file_path[:-5] + "_noicons.html", 'w', encoding='utf8') as new_file:
             new_html = [line[:line.find("ICON_URI")-1] + line[line.find('">')+1:] for line in old_file]
             new_file.write('\n'.join(new_html))
 
@@ -88,7 +75,6 @@ def find_by_date(file_path, lower_bound, upper_bound):
         print(dt.datetime.fromtimestamp(i).strftime('%d.%m.%y %H:%M'), results[i])
 
 
-# find duplicate bookmarks in firefox export file
 def find_duplicates(file_path):
     count = 0
     links = {}
@@ -121,25 +107,15 @@ def find_duplicates(file_path):
         print("No duplicates! Yay!")
 
 
-if len(sys.argv) > 2:
-    file = pt.join(os.getcwd(), sys.argv[2])
-else:
-    htmls = [i for i in os.listdir() if i.endswith('.html') and i.startswith('bookmarks_firefox')]
-    if len(htmls) == 1:
-        file = pt.join(os.getcwd(), htmls[0])
-    else:
-        print("Error: Specify file.")
-        exit(1)
-
 if   sys.argv[1] == "-s":
-    stripe_images(file)
+    stripe_favicon_images(sys.argv[2])
 elif sys.argv[1] == "-d":
-    find_duplicates(file)
+    find_duplicates(sys.argv[2])
 elif sys.argv[1] == "-l":
-    with open(pt.join(pt.dirname(file), "firefox_links.txt"), 'w', encoding='utf-8') as links_file:
-        links_file.write('\n'.join(get_links_only(file)))
+    with open(pt.join(pt.dirname(sys.argv[2]), "firefox_links.txt"), 'w', encoding='utf-8') as links_file:
+        links_file.write('\n'.join(get_links_only(sys.argv[2])))
     print("Saved firefox_links.txt")
 elif sys.argv[1] == "-f":
-    find_by_date(file, sys.argv[3], sys.argv[4])
+    find_by_date(sys.argv[2], sys.argv[3], sys.argv[4])
 elif sys.argv[1] == "-c":
     org_to_html_file(sys.argv[2], sys.argv[3])
