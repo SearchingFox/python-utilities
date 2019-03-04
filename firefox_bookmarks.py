@@ -55,8 +55,8 @@ def get_links_only(file_path):
 def stripe_favicon_images(old_file_path):
     with open(old_file_path, encoding='utf8') as old_file:
         with open(old_file_path[:-5] + "_noicons.html", 'w', encoding='utf8') as new_file:
-            new_html = [line[:line.find("ICON_URI")-1] + line[line.find('">')+1:] for line in old_file]
-            new_file.write('\n'.join(new_html))
+            new_html = [line[:line.find("ICON_URI")-1] + line[line.find('">')+1:] if line.find("ICON_URI") > 0 else line for line in old_file]
+            new_file.write(''.join(new_html))
 
 
 def find_by_date(file_path, lower_bound, upper_bound):
@@ -119,3 +119,14 @@ elif sys.argv[1] == "-f":
     find_by_date(sys.argv[2], sys.argv[3], sys.argv[4])
 elif sys.argv[1] == "-c":
     org_to_html_file(sys.argv[2], sys.argv[3])
+elif sys.argv[1] == "-v":
+    print("0.4.181021")
+else: # if sys.argv[1] == "-h":
+    print("""
+-s    stripe favicons
+-d    list duplicates
+-l    list only links
+-f    find by date
+-c    convert Orgzly export file to html
+-h    show this help
+-v    show version""")
