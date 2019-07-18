@@ -52,7 +52,7 @@ def get_links_only(file_path):
         return [line[line.find('"')+1:line.find('" A')] for line in bookmarks_file if '<A' in line]
 
 
-def stripe_favicon_images(old_file_path):
+def strip_favicon_images(old_file_path):
     with open(old_file_path, encoding='utf8') as old_file:
         with open(old_file_path[:-5] + "_noicons.html", 'w', encoding='utf8') as new_file:
             new_html = [line[:line.find("ICON_URI")-1] + line[line.find('">')+1:] if line.find("ICON_URI") > 0 else line for line in old_file]
@@ -108,7 +108,7 @@ def find_duplicates(file_path):
 
 
 if   sys.argv[1] == "-s":
-    stripe_favicon_images(sys.argv[2])
+    strip_favicon_images(sys.argv[2])
 elif sys.argv[1] == "-d":
     find_duplicates(sys.argv[2])
 elif sys.argv[1] == "-l":
@@ -123,7 +123,7 @@ elif sys.argv[1] == "-v":
     print("0.4.181021")
 else: # if sys.argv[1] == "-h":
     print("""
--s    stripe favicons
+-s    strip favicons
 -d    list duplicates
 -l    list only links
 -f    find by date
